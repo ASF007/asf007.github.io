@@ -1,6 +1,7 @@
 # 🍀 Push Your Luck
 
 A two-player, risk-vs-reward dice game built with HTML, CSS, and JavaScript. Roll to grow your turn score, hold to bank it — but roll a 1 and you lose everything you haven't banked yet. First to 100 or more wins the table.
+[Click Here](https://asf007.github.io/) to play the game live.
 
 ## 🎮 How to Play
 
