@@ -45,7 +45,7 @@ let scoresData = [
 const randInt = (min, max) => Math.floor(Math.random() * (max - min + 1) + min);
 const rollDice = () => {
   const diceVal = randInt(1, 6);
-  diceImgEl.src = `dice-${diceVal}.png`;
+  diceImgEl.src = `assets/dice-${diceVal}.png`;
   return diceVal;
 };
 
