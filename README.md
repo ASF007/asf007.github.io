@@ -10,6 +10,7 @@ A two-player, risk-vs-reward dice game built with HTML, CSS, and JavaScript. Rol
 3. **Hold** 📥 — bank your current turn score into your total and pass the turn.
 4. First player to reach **100 points** wins and lights up the table.
 5. **New game** 🔄 — resets both scores and starts over.
+6. **Tip:** You can edit the `WIN_SCORE` constant in `script.js` to better tune the difficulty (defaults to 100)
 
 ## 🖼️ Screenshots
 

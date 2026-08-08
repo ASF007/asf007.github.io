@@ -1,7 +1,7 @@
 "use strict";
 
 // edit this if u want to end game quicker
-const WIN_SCORE = 10;
+const WIN_SCORE = 100;
 // Elements
 const diceImgEl = document.querySelector(".dice");
 
