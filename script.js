@@ -1,123 +1,129 @@
 "use strict";
 
+// edit this if u want to end game quicker
+const WIN_SCORE = 10;
 // Elements
 const diceImgEl = document.querySelector(".dice");
-const players = document.querySelectorAll(".player");
 
-const score1Elem = document.querySelector("#score--0"); // plr 1 score
-const score2Elem = document.getElementById("score--1"); // plr 2
+const score0Elem = document.querySelector("#score--0"); // plr 1 score
+const score1Elem = document.getElementById("score--1"); // plr 2
+
+const currentScore0Elem = document.getElementById("current--0"); // plr 1
+const currentScore1Elem = document.getElementById("current--1"); // plr 2
 
 //buttons
 const newGameBtn = document.querySelector(".btn--new");
 const rollDiceBtn = document.querySelector(".btn--roll");
 const holdScoreBtn = document.querySelector(".btn--hold");
 // init values
+score0Elem.textContent = 0;
 score1Elem.textContent = 0;
-score2Elem.textContent = 0;
+document.querySelector(".rule span").textContent = WIN_SCORE;
 
-diceImgEl.classList.toggle("hidden");
+diceImgEl.classList.add("hidden");
 
+// data related stuff
 let gameEnded = false;
+// Index 0 = player 1, and 1 = player 2
+let currentPlayer = 0; // player 1 we start with
+let scoresData = [
+  {
+    score: 0,
+    currentScore: 0,
+    scoreElement: score0Elem,
+    currentScoreElement: currentScore0Elem,
+  },
+  {
+    score: 0,
+    currentScore: 0,
+    scoreElement: score1Elem,
+    currentScoreElement: currentScore1Elem,
+  },
+];
 
 // utility functions
 const randInt = (min, max) => Math.floor(Math.random() * (max - min + 1) + min);
 const rollDice = () => {
   const diceVal = randInt(1, 6);
-  diceImgEl.src = `assets/dice-${diceVal}.png`;
+  diceImgEl.src = `dice-${diceVal}.png`;
   return diceVal;
 };
 
 const toggleActivePlayer = () => {
-  players.forEach((plr, index) => {
-    plr.classList.toggle("player--active");
-  });
+  document
+    .querySelector(`.player--${currentPlayer}`)
+    .classList.remove("player--active");
+  currentPlayer = currentPlayer === 0 ? 1 : 0;
+  document
+    .querySelector(`.player--${currentPlayer}`)
+    .classList.add("player--active");
 };
-const getCurrentPlayer = () => {
-  for (const player of players) {
-    if (player.classList.contains("player--active")) return player;
+
+const declareWinner = () => {
+  const playerElement = document.querySelector(`.player--${currentPlayer}`);
+  playerElement.classList.add("player--winner");
+};
+
+const resetGame = () => {
+  for (const data of scoresData) {
+    data.score = 0;
+    data.currentScore = 0;
+    data.scoreElement.textContent = 0;
+    data.currentScoreElement.textContent = 0;
   }
+  gameEnded = false;
+  document
+    .querySelector(`.player--${currentPlayer}`)
+    .classList.remove("player--winner", "player--active");
+
+  currentPlayer = 0;
+  document
+    .querySelector(`.player--${currentPlayer}`)
+    .classList.add("player--active");
+
+  diceImgEl.classList.add("hidden");
 };
-const updateScore = (plr, value, reset = false) => {
-  const scoreElem = plr.classList.contains("player--0")
-    ? score1Elem
-    : score2Elem;
-
-  if (reset) {
-    scoreElem.textContent = 0;
-    return 0;
-  }
-  const currentValue = Number(scoreElem.textContent);
-  const newScore = currentValue + value;
-  scoreElem.textContent = newScore;
-  return newScore;
+const updateScore = (value, reset = false) => {
+  const data = scoresData[currentPlayer];
+  data.score = reset ? 0 : data.score + value;
+  data.scoreElement.textContent = data.score;
+  return data.score;
 };
 
-const updateCurrentScore = (plr, value, reset = false) => {
-  const currentScoreElem = plr.classList.contains("player--0")
-    ? currentScore1
-    : currentScore2;
-
-  if (reset) {
-    currentScoreElem.textContent = 0;
-    return 0;
-  }
-
-  const currentValue = Number(currentScoreElem.textContent);
-  const newScore = currentValue + value;
-  currentScoreElem.textContent = newScore;
-  return newScore;
+const updateCurrentScore = (value, reset = false) => {
+  const data = scoresData[currentPlayer];
+  data.currentScore = reset ? 0 : data.currentScore + value;
+  data.currentScoreElement.textContent = data.currentScore;
+  return data.currentScore;
 };
+
 // roll dice logic
-
-let currentScore1 = document.getElementById("current--0");
-let currentScore2 = document.getElementById("current--1");
 rollDiceBtn.addEventListener("click", () => {
   if (gameEnded) return;
-  const diceVal = rollDice();
 
   if (diceImgEl.classList.contains("hidden"))
-    diceImgEl.classList.toggle("hidden");
-
-  const player = getCurrentPlayer();
-  let currentScore = player.classList.contains("player--0")
-    ? currentScore1
-    : currentScore2;
+    diceImgEl.classList.remove("hidden");
+  const diceVal = rollDice();
 
   if (diceVal === 1) {
+    updateCurrentScore(0, true);
     toggleActivePlayer();
-    currentScore.textContent = 0;
   } else {
-    console.log(currentScore);
-    updateCurrentScore(player, diceVal);
+    updateCurrentScore(diceVal);
   }
 });
 
 // hold button
 holdScoreBtn.addEventListener("click", () => {
   if (gameEnded) return;
-  const player = getCurrentPlayer();
-  let currentScore = player.classList.contains("player--0")
-    ? currentScore1
-    : currentScore2;
-  const updatedScore = updateScore(player, Number(currentScore.textContent));
-  if (updatedScore < 100) toggleActivePlayer();
-  else {
-    player.classList.add("player--winner");
+  const data = scoresData[currentPlayer];
+  if (updateScore(data.currentScore) >= WIN_SCORE) {
     gameEnded = true;
+    declareWinner();
+  } else {
+    updateCurrentScore(0, true);
+    toggleActivePlayer();
   }
-  currentScore.textContent = 0;
 });
 
-newGameBtn.addEventListener("click", () => {
-  if (gameEnded) gameEnded = false;
-  for (const player of players) {
-    player.classList.remove("player--active");
-    player.classList.remove("player--winner");
-    updateScore(player, 0, true);
-    updateCurrentScore(player, 0, true);
-  }
-  players[0].classList.add("player--active");
-  if (diceImgEl.classList.contains("hidden") === false) {
-    diceImgEl.classList.toggle("hidden");
-  }
-});
+newGameBtn.addEventListener("click", resetGame);
